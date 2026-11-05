@@ -83,15 +83,17 @@ SDK="$WXB/out/sdk"
 nice -n 19 make -k -j"$JOBS" -f "$HERE/scripts/Makefile.amiga" SRC="$SRC" OBJ="$WORK/obj" OUT="$OUT" TC="$TC" \
     WXCONFIG="$SDK/bin/wx-config" WX_TREE="$WX_TREE" WX_ZLIB="$SDK/lib/libwxzlib-${WX_VERSION%.*}.a" \
     GLSOFT="$HERE/glsoft" PORT="$HERE" SPECS="$HERE/scripts/m68k-soft-m68040.specs" FPUSPECS="$FA/fpuauto.specs" FPULIB="$FAL" \
-    > "$WORK/golly.log" 2>&1 || { grep -E 'error|Error|undefined' "$WORK/golly.log" | cut -c1-300 | head -60; exit 1; }
-ls -l "$OUT/Golly" "$OUT/bgolly"
+    > "$WORK/golly.log" 2>&1 || { grep -E 'error|Error|undefined' "$WORK/golly.log" | cut -c1-300 | head -40; tail -15 "$WORK/golly.log" | cut -c1-300; }
+[ -f "$OUT/Golly" ] || exit 1
+# bgolly (the command-line runner) is a bonus: the package goes without it
+ls -l "$OUT/Golly" "$OUT/bgolly" 2>&1 || :
 OD="$TC/bin/m68k-amigaos-objdump"
 echo "fpuauto: $("$OD" -d "$OUT/Golly" | grep -c 'jsr.*<___wrap_' || true) wrapped calls in Golly"
 
 # ---- the package: Golly's drawer
 P="$WORK/pkg/Golly"
 rm -rf "$WORK/pkg"; mkdir -p "$P"
-cp "$OUT/Golly" "$OUT/bgolly" "$P/"
+cp "$OUT/Golly" "$P/"; [ -f "$OUT/bgolly" ] && cp "$OUT/bgolly" "$P/"
 cp -R "$SRC/Help" "$SRC/Patterns" "$SRC/Rules" "$SRC/Scripts" "$P/"
 cp "$SRC/docs/License.html" "$SRC/docs/ReadMe.html" "$P/" 2>/dev/null || :
 if command -v lha >/dev/null 2>&1; then

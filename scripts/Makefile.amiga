@@ -75,6 +75,6 @@ $(OUT)/Golly: $(BASE_OBJ) $(WX_OBJ) $(GL_OBJ) $(OBJ)/liblua.a
 
 $(OUT)/bgolly: $(BASE_OBJ) $(OBJ)/bgolly.o
 	@mkdir -p $(OUT)
-	$(CXX) $(LDFLAGS) -o $@ $(BASE_OBJ) $(OBJ)/bgolly.o $(WX_ZLIB) -lpthread -lm
+	$(CXX) $(LDFLAGS) -o $@ $(BASE_OBJ) $(OBJ)/bgolly.o $(WX_ZLIB) -lstdc++ -lpthread -lm
 
 .PHONY: all
