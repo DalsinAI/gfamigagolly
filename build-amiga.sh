@@ -82,7 +82,7 @@ echo "golly: building (from $(( $(date +%s) - t0 )) s)"
 SDK="$WXB/out/sdk"
 nice -n 19 make -k -j"$JOBS" -f "$HERE/scripts/Makefile.amiga" SRC="$SRC" OBJ="$WORK/obj" OUT="$OUT" TC="$TC" \
     WXCONFIG="$SDK/bin/wx-config" WX_TREE="$WX_TREE" WX_ZLIB="$SDK/lib/libwxzlib-${WX_VERSION%.*}.a" \
-    GLSOFT="$HERE/glsoft" SPECS="$HERE/scripts/m68k-soft-m68040.specs" FPUSPECS="$FA/fpuauto.specs" FPULIB="$FAL" \
+    GLSOFT="$HERE/glsoft" PORT="$HERE" SPECS="$HERE/scripts/m68k-soft-m68040.specs" FPUSPECS="$FA/fpuauto.specs" FPULIB="$FAL" \
     > "$WORK/golly.log" 2>&1 || { grep -E 'error|Error|undefined' "$WORK/golly.log" | cut -c1-300 | head -60; exit 1; }
 ls -l "$OUT/Golly" "$OUT/bgolly"
 OD="$TC/bin/m68k-amigaos-objdump"

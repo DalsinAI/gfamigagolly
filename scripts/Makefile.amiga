@@ -1,7 +1,7 @@
 # Golly for AmigaOS 3 (68040; the FPU when there is one, through fpuauto).
 # Run by build-amiga.sh with: SRC (Golly's patched tree), OBJ, OUT, TC
 # (the stove's prefix), WXCONFIG, WX_TREE (wx's source, for its zlib),
-# GLSOFT, SPECS, FPUSPECS, FPULIB.
+# GLSOFT, PORT (this repository), SPECS, FPUSPECS, FPULIB.
 # Copyright (c) 2026 AmiCradle Team
 
 CC  := $(TC)/bin/m68k-amigaos-gcc
@@ -12,10 +12,10 @@ VERSION := 5.0
 OPT     := -m68040 -O2 -noixemul -fno-delete-null-pointer-checks
 CFLAGS  := $(OPT) -Wall -Wno-unused
 LUAFLAGS:= $(OPT) -std=gnu99
-BASEFLAGS := $(OPT) -DVERSION=$(VERSION) -DZLIB -I$(SRC)/gollybase -I$(WX_TREE)/src/zlib \
+BASEFLAGS := $(OPT) -std=gnu++17 -DVERSION=$(VERSION) -DZLIB -I$(SRC)/gollybase -I$(WX_TREE)/src/zlib \
     -Wall -Wno-non-virtual-dtor -Wno-unused -fno-strict-aliasing
 WXFLAGS := $(BASEFLAGS) -I$(GLSOFT)/include -I$(GLSOFT)/src $(shell $(WXCONFIG) --cxxflags) \
-    -I$(SRC)/lua -I$(SRC)/gui-wx -DPYTHON_SHLIB=python3.library
+    -I$(SRC)/lua -I$(SRC)/gui-wx
 LDFLAGS := -m68040 -noixemul -specs=$(SPECS) -specs=$(FPUSPECS) -L$(FPULIB)
 
 LUA_SRC  := lapi lcode lctype ldebug ldo ldump lfunc lgc llex lmem lobject lopcodes lparser \
@@ -25,12 +25,12 @@ BASE_SRC := bigint lifealgo hlifealgo hlifedraw qlifealgo qlifedraw ltlalgo ltld
     ruletreealgo ruletable_algo ruleloaderalgo ghashbase ghashdraw readpattern writepattern \
     liferules util liferender viewport lifepoll generationsalgo superalgo
 WX_SRC   := wxutils wxprefs wxalgos wxrule wxinfo wxhelp wxstatus wxview wxoverlay wxrender \
-    wxscript wxlua wxpython wxfile wxedit wxcontrol wxtimeline wxundo wxselect wxlayer wxmain wxgolly
+    wxscript wxlua wxfile wxedit wxcontrol wxtimeline wxundo wxselect wxlayer wxmain wxgolly
 
 LUA_OBJ  := $(LUA_SRC:%=$(OBJ)/lua/%.o)
 BASE_OBJ := $(BASE_SRC:%=$(OBJ)/base/%.o)
 WX_OBJ   := $(WX_SRC:%=$(OBJ)/wx/%.o)
-GL_OBJ   := $(OBJ)/gl/glsoft.o $(OBJ)/gl/glcanvas.o
+GL_OBJ   := $(OBJ)/gl/glsoft.o $(OBJ)/gl/glcanvas.o $(OBJ)/gl/nopython.o
 
 all: $(OUT)/Golly $(OUT)/bgolly
 
@@ -54,6 +54,10 @@ $(OBJ)/gl/glsoft.o: $(GLSOFT)/src/glsoft.c $(GLSOFT)/include/GL/gl.h $(GLSOFT)/s
 	$(CC) $(CFLAGS) -O3 -std=gnu99 -I$(GLSOFT)/include -c $< -o $@
 
 $(OBJ)/gl/glcanvas.o: $(GLSOFT)/src/glcanvas.cpp $(GLSOFT)/include/wx/glcanvas.h
+	@mkdir -p $(dir $@)
+	$(CXX) $(WXFLAGS) -c $< -o $@
+
+$(OBJ)/gl/nopython.o: $(PORT)/src/nopython.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(WXFLAGS) -c $< -o $@
 
