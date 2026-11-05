@@ -1,0 +1,76 @@
+# Golly for AmigaOS 3 (68040; the FPU when there is one, through fpuauto).
+# Run by build-amiga.sh with: SRC (Golly's patched tree), OBJ, OUT, TC
+# (the stove's prefix), WXCONFIG, WX_TREE (wx's source, for its zlib),
+# GLSOFT, SPECS, FPUSPECS, FPULIB.
+# Copyright (c) 2026 AmiCradle Team
+
+CC  := $(TC)/bin/m68k-amigaos-gcc
+CXX := $(TC)/bin/m68k-amigaos-g++
+AR  := $(TC)/bin/m68k-amigaos-ar
+
+VERSION := 5.0
+OPT     := -m68040 -O2 -noixemul -fno-delete-null-pointer-checks
+CFLAGS  := $(OPT) -Wall -Wno-unused
+LUAFLAGS:= $(OPT) -std=gnu99
+BASEFLAGS := $(OPT) -DVERSION=$(VERSION) -DZLIB -I$(SRC)/gollybase -I$(WX_TREE)/src/zlib \
+    -Wall -Wno-non-virtual-dtor -Wno-unused -fno-strict-aliasing
+WXFLAGS := $(BASEFLAGS) -I$(GLSOFT)/include -I$(GLSOFT)/src $(shell $(WXCONFIG) --cxxflags) \
+    -I$(SRC)/lua -I$(SRC)/gui-wx -DPYTHON_SHLIB=python3.library
+LDFLAGS := -m68040 -noixemul -specs=$(SPECS) -specs=$(FPUSPECS) -L$(FPULIB)
+
+LUA_SRC  := lapi lcode lctype ldebug ldo ldump lfunc lgc llex lmem lobject lopcodes lparser \
+    lstate lstring ltable ltm lundump lvm lzio lauxlib lbaselib lcorolib ldblib liolib \
+    lmathlib loslib lstrlib ltablib lutf8lib loadlib linit
+BASE_SRC := bigint lifealgo hlifealgo hlifedraw qlifealgo qlifedraw ltlalgo ltldraw jvnalgo \
+    ruletreealgo ruletable_algo ruleloaderalgo ghashbase ghashdraw readpattern writepattern \
+    liferules util liferender viewport lifepoll generationsalgo superalgo
+WX_SRC   := wxutils wxprefs wxalgos wxrule wxinfo wxhelp wxstatus wxview wxoverlay wxrender \
+    wxscript wxlua wxpython wxfile wxedit wxcontrol wxtimeline wxundo wxselect wxlayer wxmain wxgolly
+
+LUA_OBJ  := $(LUA_SRC:%=$(OBJ)/lua/%.o)
+BASE_OBJ := $(BASE_SRC:%=$(OBJ)/base/%.o)
+WX_OBJ   := $(WX_SRC:%=$(OBJ)/wx/%.o)
+GL_OBJ   := $(OBJ)/gl/glsoft.o $(OBJ)/gl/glcanvas.o
+
+all: $(OUT)/Golly $(OUT)/bgolly
+
+$(OBJ)/liblua.a: $(LUA_OBJ)
+	rm -f $@; $(AR) rcs $@ $^
+
+$(OBJ)/lua/%.o: $(SRC)/lua/%.c
+	@mkdir -p $(dir $@)
+	$(CC) $(LUAFLAGS) -c $< -o $@
+
+$(OBJ)/base/%.o: $(SRC)/gollybase/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(BASEFLAGS) -c $< -o $@
+
+$(OBJ)/wx/%.o: $(SRC)/gui-wx/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(WXFLAGS) -c $< -o $@
+
+$(OBJ)/gl/glsoft.o: $(GLSOFT)/src/glsoft.c $(GLSOFT)/include/GL/gl.h $(GLSOFT)/src/glsoft.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CFLAGS) -O3 -std=gnu99 -I$(GLSOFT)/include -c $< -o $@
+
+$(OBJ)/gl/glcanvas.o: $(GLSOFT)/src/glcanvas.cpp $(GLSOFT)/include/wx/glcanvas.h
+	@mkdir -p $(dir $@)
+	$(CXX) $(WXFLAGS) -c $< -o $@
+
+$(OBJ)/bgolly.o: $(SRC)/cmdline/bgolly.cpp
+	$(CXX) $(BASEFLAGS) -c $< -o $@
+
+# wx's headers and GLSoft's change: everything of the GUI again
+$(WX_OBJ) $(OBJ)/gl/glcanvas.o: $(wildcard $(GLSOFT)/include/wx/*.h) $(wildcard $(SRC)/gui-wx/*.h)
+$(BASE_OBJ) $(WX_OBJ): $(wildcard $(SRC)/gollybase/*.h)
+
+$(OUT)/Golly: $(BASE_OBJ) $(WX_OBJ) $(GL_OBJ) $(OBJ)/liblua.a
+	@mkdir -p $(OUT)
+	$(CXX) $(LDFLAGS) -o $@ $(BASE_OBJ) $(WX_OBJ) $(GL_OBJ) $(OBJ)/liblua.a \
+	    $(shell $(WXCONFIG) --libs std,html) -lm
+
+$(OUT)/bgolly: $(BASE_OBJ) $(OBJ)/bgolly.o
+	@mkdir -p $(OUT)
+	$(CXX) $(LDFLAGS) -o $@ $(BASE_OBJ) $(OBJ)/bgolly.o $(WX_ZLIB) -lm
+
+.PHONY: all

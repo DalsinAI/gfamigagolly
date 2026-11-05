@@ -1,0 +1,119 @@
+AmigaOS: the program's drawer is the application directory and holds the
+user's data (User/); downloads, TIFF and the internet file system only
+when wxWidgets has them (this build has no sockets).
+
+diff -ru a/gui-wx/wxgolly.cpp b/gui-wx/wxgolly.cpp
+--- a/gui-wx/wxgolly.cpp	2026-11-05 21:07:25.992045458 +0000
++++ b/gui-wx/wxgolly.cpp	2026-11-05 21:07:37.842418671 +0000
+@@ -14,7 +14,9 @@
+ #include "wx/stdpaths.h"   // for wxStandardPaths
+ #include "wx/sysopt.h"     // for wxSystemOptions
+ #include "wx/filename.h"   // for wxFileName
++#if wxUSE_FS_INET
+ #include "wx/fs_inet.h"    // for wxInternetFSHandler
++#endif
+ #include "wx/fs_zip.h"     // for wxZipFSHandler
+ 
+ #include "lifepoll.h"
+@@ -199,6 +201,10 @@
+ #elif defined(__WXMAC__)
+     // wxMac has set current directory to location of .app bundle so no need
+     // to do anything
++#elif defined(__AMIGA__)
++    // AmigaOS: the program's own drawer holds Help, Patterns, Rules, Scripts
++    wxSetWorkingDirectory(wxT("PROGDIR:"));
++    wxUnusedVar(argv0);
+ #else // assume Unix
+     // first, try to switch to GOLLYDIR if that is set to a sensible value:
+     static const char *gd = STRINGIFY(GOLLYDIR);
+@@ -299,10 +305,14 @@
+     // allow .html files to include common graphic formats
+     wxImage::AddHandler(new wxGIFHandler);
+     wxImage::AddHandler(new wxPNGHandler);
++#if wxUSE_LIBTIFF
+     wxImage::AddHandler(new wxTIFFHandler);
++#endif
+     
+     // wxInternetFSHandler is needed to allow downloading files
++#if wxUSE_FS_INET
+     wxFileSystem::AddHandler(new wxInternetFSHandler);
++#endif
+     wxFileSystem::AddHandler(new wxZipFSHandler);
+     
+     // get main window location and other user preferences
+diff -ru a/gui-wx/wxhelp.cpp b/gui-wx/wxhelp.cpp
+--- a/gui-wx/wxhelp.cpp	2026-11-05 21:07:25.999600535 +0000
++++ b/gui-wx/wxhelp.cpp	2026-11-05 21:07:37.841478662 +0000
+@@ -8,7 +8,9 @@
+ 
+ #include "wx/wxhtml.h"          // for wxHtmlWindow
+ #include "wx/file.h"            // for wxFile
++#if wxUSE_WEBREQUEST
+ #include "wx/webrequest.h"      // for wxWebRequest
++#endif
+ #include "wx/wfstream.h"        // for wxFileOutputStream, wxFileInputStream
+ #include "wx/zipstrm.h"         // for wxZipInputStream
+ 
+@@ -41,7 +43,9 @@
+     bool infront;     // help window is active?
+ 
+     // for downloading files using wxWebRequest
++#if wxUSE_WEBREQUEST
+     void OnWebRequestState(wxWebRequestEvent& evt);
++#endif
+     bool DownloadURL(const wxString& url, const wxString& filepath);
+ 
+ private:
+@@ -67,7 +71,9 @@
+     wxStaticText* status;   // status line at bottom of help window
+ 
+     // for downloading files
++#if wxUSE_WEBREQUEST
+     wxWebRequest webRequest;
++#endif
+     wxString download_file;
+     bool download_complete;
+     
+@@ -450,6 +456,7 @@
+ 
+ // -----------------------------------------------------------------------------
+ 
++#if wxUSE_WEBREQUEST
+ void HelpFrame::OnWebRequestState(wxWebRequestEvent& evt)
+ {
+     bool stillActive = false;
+@@ -527,6 +534,17 @@
+     return download_complete;
+ }
+ 
++#else // !wxUSE_WEBREQUEST
++
++bool HelpFrame::DownloadURL(const wxString& url, const wxString& WXUNUSED(filepath))
++{
++    // AmigaOS: this build has no web requests (wxWidgets without sockets)
++    Warning(_("This version of Golly cannot download files.\nPlease fetch this one by hand:\n") + url);
++    return false;
++}
++
++#endif // wxUSE_WEBREQUEST
++
+ // -----------------------------------------------------------------------------
+ 
+ void LoadRule(const wxString& rulestring, bool fromfile)
+diff -ru a/gui-wx/wxprefs.cpp b/gui-wx/wxprefs.cpp
+--- a/gui-wx/wxprefs.cpp	2026-11-05 21:07:25.995745749 +0000
++++ b/gui-wx/wxprefs.cpp	2026-11-05 21:07:37.842908632 +0000
+@@ -1736,7 +1736,13 @@
+     // Win: C:\Documents and Settings\username\Application Data\Golly
+     // Mac: ~/Library/Application Support/Golly
+     // Unix: ~/.golly
++#ifdef __AMIGA__
++    // AmigaOS: the user's rules, downloads and prefs go in the program's
++    // drawer, under User
++    datadir = gollydir + wxT("User");
++#else
+     datadir = wxStandardPaths::Get().GetUserDataDir();
++#endif
+     if ( !wxFileName::DirExists(datadir) ) {
+         if ( !wxFileName::Mkdir(datadir, 0777, wxPATH_MKDIR_FULL) ) {
+             Warning(_("Could not create a user-specific data directory!\nWill try to use the application directory instead."));
