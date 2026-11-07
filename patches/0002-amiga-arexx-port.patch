@@ -4,8 +4,11 @@ diff --git a/gui-wx/wxgolly.cpp b/gui-wx/wxgolly.cpp
 index 654191d..1230595 100755
 --- a/gui-wx/wxgolly.cpp
 +++ b/gui-wx/wxgolly.cpp
-@@ -321,6 +321,13 @@ bool GollyApp::OnInit()
+@@ -321,6 +321,16 @@ bool GollyApp::OnInit()
      // create main window (also initializes viewptr, bigview, statusptr)
++#ifdef __AMIGA__
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("OnInit: before MainFrame"); }
++#endif
      mainptr = new MainFrame();
      if (mainptr == NULL) Fatal(_("Failed to create main window!"));
 +#ifdef __AMIGA__

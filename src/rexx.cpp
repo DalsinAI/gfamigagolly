@@ -23,8 +23,22 @@
 
 static wxARexxPort *gs_rexx = NULL;
 
+#include <stdio.h>
+static void diag(const char *what)
+{
+    FILE *f = fopen("RAM:golly-diag.txt", "a");
+    if ( f )
+    {
+        fprintf(f, "%s\n", what);
+        fclose(f);
+    }
+}
+
+void AmigaRexxDiag(const char *what) { diag(what); }
+
 void AmigaRexxStart(MainFrame *frame)
 {
+    diag("AmigaRexxStart: MainFrame made");
     if ( gs_rexx )
         return;
     gs_rexx = new wxARexxPort("GOLLY", "Golly " STRINGIFY(VERSION));
@@ -71,7 +85,9 @@ void AmigaRexxStart(MainFrame *frame)
     gs_rexx->Add("GETRULE", "", [](wxARexxCommand& c) {
         c.SetResult(currlayer->algo->getrule());
     });
-    gs_rexx->Open();
+    diag("commands added");
+    diag(gs_rexx->Open() ? "port open" : "port NOT open");
+    frame->CallAfter([]() { diag("main loop runs"); });
     // the port goes with the main window, before wx closes down
     frame->Bind(wxEVT_DESTROY, [frame](wxWindowDestroyEvent& e) {
         if ( e.GetEventObject() == frame )
