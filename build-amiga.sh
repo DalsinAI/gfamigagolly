@@ -96,6 +96,7 @@ rm -rf "$WORK/pkg"; mkdir -p "$P"
 cp "$OUT/Golly" "$P/"; [ -f "$OUT/bgolly" ] && cp "$OUT/bgolly" "$P/"
 cp -R "$SRC/Help" "$SRC/Patterns" "$SRC/Rules" "$SRC/Scripts" "$P/"
 cp "$SRC/docs/License.html" "$SRC/docs/ReadMe.html" "$P/" 2>/dev/null || :
+mkdir -p "$P/Rexx"; cp "$HERE"/Rexx/*.rexx "$P/Rexx/"   # the ARexx example (README: ARexx)
 if command -v lha >/dev/null 2>&1; then
     (cd "$WORK/pkg" && lha -aq "$OUT/Golly-$GOLLY_VERSION.lha" Golly >/dev/null) && ls -l "$OUT/Golly-$GOLLY_VERSION.lha"
 elif command -v jlha >/dev/null 2>&1; then
