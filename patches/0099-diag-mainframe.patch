@@ -1,7 +1,7 @@
 Diagnosis only (never merge): where MainFrame's constructor stops.
 
 diff --git a/gui-wx/wxmain.cpp b/gui-wx/wxmain.cpp
-index d004a5b..ed10742 100644
+index d004a5b..06dff98 100644
 --- a/gui-wx/wxmain.cpp
 +++ b/gui-wx/wxmain.cpp
 @@ -2638,7 +2638,9 @@ MainFrame::MainFrame()
@@ -67,18 +67,61 @@ index d004a5b..ed10742 100644
      viewptr = new PatternView(rightpane, 0, y, 40, 40,
                                wxNO_BORDER |
                                wxWANTS_CHARS |              // receive all keyboard events
-@@ -2705,6 +2716,7 @@ MainFrame::MainFrame()
+@@ -2705,30 +2716,58 @@ MainFrame::MainFrame()
      bigview = viewptr;
  
      // create the scroll bars
 +    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before scrollbars"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
      hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoint(0,0), wxSize(-1, 15), wxSB_HORIZONTAL);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before vbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
      vbar = new wxScrollBar(rightpane, wxID_ANY, wxPoint(0,0), wxSize(15, -1), wxSB_VERTICAL);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after vbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before hbar->SetMinSize(wxDefaultSize);"); }
      hbar->SetMinSize(wxDefaultSize);
-@@ -2729,6 +2741,7 @@ MainFrame::MainFrame()
-     splitwin->UpdateSize();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after hbar->SetMinSize(wxDefaultSize);"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before vbar->SetMinSize(wxDefaultSize);"); }
+     vbar->SetMinSize(wxDefaultSize);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after vbar->SetMinSize(wxDefaultSize);"); }
      
+     if (!showscrollbars) {
+         // hide scroll bars
++        { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before hbar->Show(false);"); }
+         hbar->Show(false);
++        { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after hbar->Show(false);"); }
++        { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before vbar->Show(false);"); }
+         vbar->Show(false);
++        { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after vbar->Show(false);"); }
+     }
+ 
+ #if wxUSE_DRAG_AND_DROP
+     // let users drop files onto viewport
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before viewptr->SetDropTarget(new DnDFile());"); }
+     viewptr->SetDropTarget(new DnDFile());
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after viewptr->SetDropTarget(new DnDFile());"); }
+ #endif
+     
+     // these seemingly redundant steps are needed to avoid problems on Windows
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin->SplitVertically(filectrl, rightpane, dir"); }
+     splitwin->SplitVertically(filectrl, rightpane, dirwinwd);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after splitwin->SplitVertically(filectrl, rightpane, dir"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin->SetSashPosition(dirwinwd);"); }
+     splitwin->SetSashPosition(dirwinwd);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after splitwin->SetSashPosition(dirwinwd);"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin->SetMinimumPaneSize(MIN_DIRWD);"); }
+     splitwin->SetMinimumPaneSize(MIN_DIRWD);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after splitwin->SetMinimumPaneSize(MIN_DIRWD);"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin->Unsplit(filectrl);"); }
+     splitwin->Unsplit(filectrl);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after splitwin->Unsplit(filectrl);"); }
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin->UpdateSize();"); }
+     splitwin->UpdateSize();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after splitwin->UpdateSize();"); }
+     
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before if (showfiles) splitwin->SplitVertically(filectrl,"); }
      if (showfiles) splitwin->SplitVertically(filectrl, rightpane, dirwinwd);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after if (showfiles) splitwin->SplitVertically(filectrl,"); }
 +    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("MainFrame done"); }
  }
  
