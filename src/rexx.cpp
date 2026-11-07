@@ -34,7 +34,68 @@ static void diag(const char *what)
     }
 }
 
-void AmigaRexxDiag(const char *what) { diag(what); }
+// every event wx dispatches, while the diagnosis runs: the last one logged
+// before a hang is the handler it hangs in
+class DiagFilter : public wxEventFilter
+{
+public:
+    int FilterEvent(wxEvent& e) wxOVERRIDE
+    {
+        if ( !s_on )
+            return Event_Skip;
+        char line[160];
+        wxObject *o = e.GetEventObject();
+        const wxClassInfo *ci = o ? o->GetClassInfo() : NULL;
+        snprintf(line, sizeof line, "  event %d on %s %p", (int)e.GetEventType(),
+                 ci ? (const char *)wxString(ci->GetClassName()).mb_str() : "?", (void *)o);
+        diag(line);
+        return Event_Skip;
+    }
+    static bool s_on;
+};
+bool DiagFilter::s_on = false;
+static DiagFilter *gs_filter = NULL;
+
+void AmigaRexxDiag(const char *what)
+{
+    if ( !gs_filter )
+    {
+        gs_filter = new DiagFilter;
+        wxEvtHandler::AddFilter(gs_filter);
+    }
+    diag(what);
+}
+
+// scroll bars made step by step, on the frame, on a fresh plain child of
+// the right pane, and on the right pane itself, with every event logged
+void AmigaRexxProbe(wxWindow *frame, wxWindow *pane)
+{
+    AmigaRexxDiag("probe: events on");
+    DiagFilter::s_on = true;
+    diag("probe 1: new wxScrollBar() (no Create)");
+    wxScrollBar *a = new wxScrollBar();
+    diag("probe 1: Create on the frame");
+    a->Create(frame, wxID_ANY, wxPoint(0, 0), wxSize(-1, 15), wxSB_HORIZONTAL);
+    diag("probe 1: made; Destroy");
+    a->Destroy();
+    diag("probe 2: plain wxWindow in the pane");
+    wxWindow *w = new wxWindow(pane, wxID_ANY, wxPoint(0, 0), wxSize(40, 40));
+    diag("probe 2: scroll bar on it");
+    wxScrollBar *b = new wxScrollBar(w, wxID_ANY, wxPoint(0, 0), wxSize(-1, 15), wxSB_HORIZONTAL);
+    diag("probe 2: made; Destroy both");
+    b->Destroy();
+    w->Destroy();
+    diag("probe 3: wxControl on the pane");
+    wxControl *c = new wxControl(pane, wxID_ANY, wxPoint(0, 0), wxSize(20, 15));
+    diag("probe 3: made; Destroy");
+    c->Destroy();
+    diag("probe 4: Create on the pane, two-phase");
+    wxScrollBar *d = new wxScrollBar();
+    d->Create(pane, wxID_ANY, wxPoint(0, 0), wxSize(-1, 15), wxSB_HORIZONTAL);
+    diag("probe 4: made; Destroy");
+    d->Destroy();
+    diag("probe done; Golly's own bars next");
+}
 
 void AmigaRexxStart(MainFrame *frame)
 {

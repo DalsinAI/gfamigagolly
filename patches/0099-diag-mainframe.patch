@@ -71,7 +71,7 @@ index d004a5b..06dff98 100644
      bigview = viewptr;
  
      // create the scroll bars
-+    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before scrollbars"); }
++    { extern void AmigaRexxProbe(wxWindow *, wxWindow *); AmigaRexxProbe(this, rightpane); }
 +    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
      hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoint(0,0), wxSize(-1, 15), wxSB_HORIZONTAL);
 +    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoin"); }
