@@ -4,7 +4,7 @@
  * Copyright (c) 2026 AmiCradle Team */
 OPTIONS RESULTS
 PARSE ARG pat
-IF pat = '' THEN pat = 'Patterns/Life/Guns/gosper-glider-gun.rle'
+IF pat = '' THEN pat = 'Patterns/Life/Guns/loafer-gun-p210.rle'
 bad = 0
 ADDRESS 'GOLLY.1'
 

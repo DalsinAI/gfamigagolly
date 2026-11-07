@@ -51,7 +51,7 @@ Golly has an ARexx port, `GOLLY.1` (`GOLLY.2` for a second copy), from the GFOpe
 /* Golly: run 100 steps, then say the population */
 OPTIONS RESULTS
 ADDRESS 'GOLLY.1'
-'OPEN Patterns/Life/Guns/gosper-glider-gun.rle'
+'OPEN Patterns/Life/Guns/loafer-gun-p210.rle'
 DO 100; 'STEP'; END
 'GETPOP'; SAY 'population' result
 ```
