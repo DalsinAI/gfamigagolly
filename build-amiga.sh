@@ -80,6 +80,13 @@ fi
 # ---- Golly
 echo "golly: building (from $(( $(date +%s) - t0 )) s)"
 SDK="$WXB/out/sdk"
+# objects built on another toolkit commit go: its headers (features, class
+# layouts, vtables) are not the ones the make rules list, and a stale object
+# beside new ones breaks objects at run time (GLSoft's canvas did)
+if [ "$(cat "$WORK/obj/.toolkit" 2>/dev/null)" != "$WXT_COMMIT" ]; then
+    rm -rf "$WORK/obj"; mkdir -p "$WORK/obj"
+    echo "$WXT_COMMIT" > "$WORK/obj/.toolkit"
+fi
 nice -n 19 make -k -j"$JOBS" -f "$HERE/scripts/Makefile.amiga" SRC="$SRC" OBJ="$WORK/obj" OUT="$OUT" TC="$TC" \
     WXCONFIG="$SDK/bin/wx-config" WX_TREE="$WX_TREE" WX_ZLIB="$SDK/lib/libwxzlib-${WX_VERSION%.*}.a" \
     GLSOFT="$HERE/glsoft" PORT="$HERE" SPECS="$HERE/scripts/m68k-soft-m68040.specs" FPUSPECS="$FA/fpuauto.specs" FPULIB="$FAL" \
