@@ -31,3 +31,27 @@ Golly is GPL v2 or later; the patches and build files here are under the same li
 
 Designed, tested and delivered by The AmiCradle Team.
 Copyright (c) 2026 AmiCradle Team
+
+## ARexx
+
+Golly has an ARexx port, `GOLLY.1` (`GOLLY.2` for a second copy), from the GFOpenWX Toolkit's `wxARexxPort` on arexx.class.
+
+| Command | Does |
+| --- | --- |
+| `OPEN FILE/A` | open a pattern, rule or script file |
+| `NEW` | a new, empty pattern |
+| `SAVE` | save the pattern (asks for a name, as File > Save does) |
+| `RUN`, `STOP` | start or stop generating |
+| `STEP` | one step of the current step size (RC 5 while running) |
+| `RESET` | back to the starting generation |
+| `GETGEN`, `GETPOP`, `GETRULE` | RESULT: the generation, the population, the rule |
+| `QUIT`, `ACTIVATE`, `DEACTIVATE`, `VERSION`, `HELP`, `FAULT` | the toolkit's standard commands |
+
+```
+/* Golly: run 100 steps, then say the population */
+OPTIONS RESULTS
+ADDRESS 'GOLLY.1'
+'OPEN Patterns/Life/Guns/gosper-glider-gun.rle'
+DO 100; 'STEP'; END
+'GETPOP'; SAY 'population' result
+```

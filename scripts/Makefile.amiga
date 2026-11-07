@@ -30,7 +30,7 @@ WX_SRC   := wxutils wxprefs wxalgos wxrule wxinfo wxhelp wxstatus wxview wxoverl
 LUA_OBJ  := $(LUA_SRC:%=$(OBJ)/lua/%.o)
 BASE_OBJ := $(BASE_SRC:%=$(OBJ)/base/%.o)
 WX_OBJ   := $(WX_SRC:%=$(OBJ)/wx/%.o)
-GL_OBJ   := $(OBJ)/gl/glsoft.o $(OBJ)/gl/glcanvas.o $(OBJ)/gl/nopython.o
+GL_OBJ   := $(OBJ)/gl/glsoft.o $(OBJ)/gl/glcanvas.o $(OBJ)/gl/nopython.o $(OBJ)/gl/rexx.o
 
 all: $(OUT)/Golly $(OUT)/bgolly
 
@@ -58,6 +58,10 @@ $(OBJ)/gl/glcanvas.o: $(GLSOFT)/src/glcanvas.cpp $(GLSOFT)/include/wx/glcanvas.h
 	$(CXX) $(WXFLAGS) -c $< -o $@
 
 $(OBJ)/gl/nopython.o: $(PORT)/src/nopython.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(WXFLAGS) -c $< -o $@
+
+$(OBJ)/gl/rexx.o: $(PORT)/src/rexx.cpp $(wildcard $(SRC)/gui-wx/*.h)
 	@mkdir -p $(dir $@)
 	$(CXX) $(WXFLAGS) -c $< -o $@
 
