@@ -1,0 +1,85 @@
+Diagnosis only (never merge): where MainFrame's constructor stops.
+
+diff --git a/gui-wx/wxmain.cpp b/gui-wx/wxmain.cpp
+index d004a5b..ed10742 100644
+--- a/gui-wx/wxmain.cpp
++++ b/gui-wx/wxmain.cpp
+@@ -2638,7 +2638,9 @@ MainFrame::MainFrame()
+     curroverlay = new Overlay();
+     
+     CreateMenus();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after CreateMenus"); }
+     CreateToolbar();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after CreateToolbar"); }
+     
+     // if tool bar is visible then adjust position of other child windows
+     int toolwd = showtool ? TOOLBARWD : 0;
+@@ -2654,10 +2656,12 @@ MainFrame::MainFrame()
+     // but to the right of the tool bar
+     int statht = showexact ? STATUS_EXHT : STATUS_HT;
+     if (!showstatus) statht = 0;
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before StatusBar"); }
+     statusptr = new StatusBar(this, toolwd, 0, wd - toolwd, statht);
+     
+     // create a split window with file directory in left pane
+     // and layer/edit/timeline bars and pattern viewport in right pane
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before splitwin"); }
+     splitwin = new wxSplitterWindow(this, wxID_ANY,
+                                     wxPoint(toolwd, statht),
+                                     wxSize(wd - toolwd, ht - statht),
+@@ -2668,20 +2672,25 @@ MainFrame::MainFrame()
+     
+     // create filectrl in left pane
+     CreateDirControl();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after CreateDirControl"); }
+     
+     // create a window for right pane which contains layer/edit/timeline bars
+     // and pattern viewport
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before RightWindow"); }
+     rightpane = new RightWindow(splitwin);
+     
+     // create layer bar and initial layer
+     CreateLayerBar(rightpane);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after LayerBar"); }
+     AddLayer();
+     
+     // create edit bar
+     CreateEditBar(rightpane);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after EditBar"); }
+     
+     // create timeline bar
+     CreateTimelineBar(rightpane);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after TimelineBar"); }
+     
+     // enable/disable tool tips after creating bars with buttons
+ #if wxUSE_TOOLTIPS
+@@ -2690,11 +2699,13 @@ MainFrame::MainFrame()
+ #endif
+     
+     CreateTranslucentControls();        // must be done BEFORE creating viewport
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("after Translucent"); }
+     
+     // create viewport at minimum size
+     int y = 0;
+     if (showlayer) y += LayerBarHeight();
+     if (showedit) y += EditBarHeight();
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before PatternView"); }
+     viewptr = new PatternView(rightpane, 0, y, 40, 40,
+                               wxNO_BORDER |
+                               wxWANTS_CHARS |              // receive all keyboard events
+@@ -2705,6 +2716,7 @@ MainFrame::MainFrame()
+     bigview = viewptr;
+ 
+     // create the scroll bars
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("before scrollbars"); }
+     hbar = new wxScrollBar(rightpane, wxID_ANY, wxPoint(0,0), wxSize(-1, 15), wxSB_HORIZONTAL);
+     vbar = new wxScrollBar(rightpane, wxID_ANY, wxPoint(0,0), wxSize(15, -1), wxSB_VERTICAL);
+     hbar->SetMinSize(wxDefaultSize);
+@@ -2729,6 +2741,7 @@ MainFrame::MainFrame()
+     splitwin->UpdateSize();
+     
+     if (showfiles) splitwin->SplitVertically(filectrl, rightpane, dirwinwd);
++    { extern void AmigaRexxDiag(const char *); AmigaRexxDiag("MainFrame done"); }
+ }
+ 
+ // -----------------------------------------------------------------------------
