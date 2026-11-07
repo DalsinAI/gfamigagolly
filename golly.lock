@@ -5,7 +5,7 @@ GOLLY_URL=https://downloads.sourceforge.net/project/golly/golly/golly-5.0/golly-
 GOLLY_SHA256=5835cde428153f9b840ba94a4359e5cb26eb302e7ac01a097cd7f5a5c8303611
 # GFOpenWX Toolkit (wxWidgets on GFOpenLayout)
 WXT_REPO=https://github.com/DalsinAI/gfopenwxtoolkit
-WXT_COMMIT=1c4e5dd981a8d3fb7ccb417bd91dd201bd18307d
+WXT_COMMIT=55a49bda4ce601111c7dee79203ddd299d911dfb
 # fpuauto (amicradle-guest common/fpuauto): the FPU when there is one
 FPUAUTO_REPO=https://github.com/DalsinAI/amicradle-guest
 FPUAUTO_COMMIT=4a784c84b878fe0e9abade7006e67e1ded9b165c
