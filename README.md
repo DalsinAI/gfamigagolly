@@ -38,14 +38,16 @@ Golly has an ARexx port, `GOLLY.1` (`GOLLY.2` for a second copy), from the GFOpe
 
 | Command | Does |
 | --- | --- |
-| `OPEN FILE/A` | open a pattern, rule or script file |
+| `OPEN FILE/A` | open a pattern, rule or script file; RC 10 when it cannot be read, RC 5 when the pattern has unsaved changes |
 | `NEW` | a new, empty pattern |
-| `SAVE` | save the pattern (asks for a name, as File > Save does) |
+| `SAVE FILE/K` | save the pattern in FILE (`.rle`, `.mc`, `.gz`: the format from the name), or in the file it came from; RC 10 when there is no name or it could not be written |
 | `RUN`, `STOP` | start or stop generating |
 | `STEP` | one step of the current step size (RC 5 while running) |
 | `RESET` | back to the starting generation |
 | `GETGEN`, `GETPOP`, `GETRULE` | RESULT: the generation, the population, the rule |
 | `QUIT`, `ACTIVATE`, `DEACTIVATE`, `VERSION`, `HELP`, `FAULT` | the toolkit's standard commands |
+
+No command puts up a requester: what one would have said goes to the status bar, and the command answers RC 5 (unsaved changes: `NEW` and `OPEN` leave the pattern alone) or RC 10.
 
 ```
 /* Golly: run 100 steps, then say the population */
