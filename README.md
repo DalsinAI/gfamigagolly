@@ -58,4 +58,4 @@ DO 100; 'STEP'; END
 'GETPOP'; SAY 'population' result
 ```
 
-`Rexx/Run100.rexx` (in the package's Rexx drawer) is an example; `tests/arexx.rexx` checks every command.
+`Rexx/Run100.rexx` (in the package's Rexx drawer) is an example; `tests/arexx.rexx` (in the package's tests drawer) checks every command: `rx tests/arexx.rexx` with Golly running.
