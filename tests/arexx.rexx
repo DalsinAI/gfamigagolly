@@ -31,6 +31,25 @@ CALL check 'STEP moves on', result > g0
 CALL check 'RESET', rc = 0 & result = g0
 'OPEN NoSuchDrawer/none.rle'
 CALL check 'OPEN missing', rc = 10
+'SAVE FILE RAM:arexx-test.rle'
+CALL check 'SAVE FILE', rc = 0 & EXISTS('RAM:arexx-test.rle')
+'OPEN RAM:arexx-test.rle'
+CALL check 'OPEN saved', rc = 0
+'GETPOP'
+CALL check 'saved pattern', result = p0
+'SAVE'
+CALL check 'SAVE to its own file', rc = 0
+IF OPEN('bad', 'RAM:arexx-bad.rle', 'W') THEN DO
+    CALL WRITELN 'bad', '#N not a pattern'
+    CALL WRITELN 'bad', 'x = zz, y = qq, rule = Nothing/at all'
+    CALL WRITELN 'bad', '$$$!!!@@@'
+    CALL CLOSE 'bad'
+END
+'OPEN RAM:arexx-bad.rle'
+CALL check 'OPEN unreadable answers (no requester)', rc >= 0
+'NEW'
+CALL check 'NEW', rc = 0 | rc = 5
+ADDRESS COMMAND 'Delete RAM:arexx-test.rle RAM:arexx-bad.rle QUIET'
 'NOSUCH'
 CALL check 'unknown', rc >= 10
 'QUIT'

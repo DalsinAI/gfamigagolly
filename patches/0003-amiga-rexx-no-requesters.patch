@@ -1,0 +1,60 @@
+AmigaOS: no requester while an ARexx command runs (Note, Warning, SaveChanges; src/rexx.cpp).
+
+--- a/gui-wx/wxutils.cpp	2026-11-10 09:26:42.709456204 +0000
++++ b/gui-wx/wxutils.cpp	2026-11-10 09:26:42.724462266 +0000
+@@ -18,6 +18,15 @@
+ #include "wxutils.h"
+ #include <random>
+ 
++#ifdef __AMIGA__
++// AmigaOS: while an ARexx command runs (src/rexx.cpp), no requester: what
++// it would have said is kept for the command's answer, and a question about
++// unsaved changes is answered Cancel
++extern int amigaRexxQuiet;
++extern wxString amigaRexxMessage;
++extern int amigaRexxAsked;
++#endif
++
+ // -----------------------------------------------------------------------------
+ 
+ // need platform-specific gap after OK/Cancel buttons
+@@ -33,6 +41,12 @@
+ 
+ void Note(const wxString& msg, bool showCancel)
+ {
++#ifdef __AMIGA__
++    if (amigaRexxQuiet) {
++        amigaRexxMessage = msg;
++        return;
++    }
++#endif
+     wxString title = wxGetApp().GetAppName() + _(" note:");
+     if (inscript && showCancel) {
+         // add a Cancel button so user can abort script
+@@ -52,6 +66,12 @@
+ 
+ void Warning(const wxString& msg, bool showCancel)
+ {
++#ifdef __AMIGA__
++    if (amigaRexxQuiet) {
++        amigaRexxMessage = msg;
++        return;
++    }
++#endif
+     Beep();
+     wxString title = wxGetApp().GetAppName() + _(" warning:");
+     if (inscript && showCancel) {
+@@ -347,6 +367,13 @@
+ 
+ int SaveChanges(const wxString& query, const wxString& msg)
+ {
++#ifdef __AMIGA__
++    if (amigaRexxQuiet) {
++        amigaRexxMessage = query;
++        amigaRexxAsked = 1;
++        return 0;   // Cancel
++    }
++#endif
+ #ifdef __WXMAC__
+     // use a standard looking modal dialog on wxOSX;
+     // sadly, positioning over center of parent window is not supported by NSAlert
