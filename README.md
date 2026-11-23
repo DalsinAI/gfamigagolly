@@ -4,6 +4,10 @@ Golly 5.0, the cellular automata explorer, for AmigaOS 3 (68040; the FPU when th
 
 Golly and what it builds on are fetched at build time at the versions `golly.lock` pins, and `patches/` is applied to Golly; nothing third-party is kept in this repository.
 
+## Needs
+
+`gfopenlayout.library` 12 or later in `LIBS:`. Golly's windows are drawn by GFOpenLayout through that library, not a copy built into the program (GFOffice Libs ships version 25). Without it Golly says "This needs gfopenlayout.library 12 or later in LIBS:" and stops.
+
 ## How it works
 
 - Golly's windows, menus, dialogs, help and preferences are wx, drawn by the GFOpenWX Toolkit.
